@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>MoveG - Panel de Socio</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f0f2f5;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .navbar {
+            background-color: #198754;
+            color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-card {
+            background: white;
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        .profile-header {
+            background: #198754;
+            height: 100px;
+        }
+
+        .profile-img {
+            width: 130px;
+            height: 130px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 5px solid white;
+            margin-top: -65px;
+            background: #eee;
+        }
+
+        .badge-status {
+            font-size: 0.9rem;
+            padding: 8px 15px;
+            border-radius: 20px;
+        }
+
+        /* El contenedor del interruptor */
+        /* Contenedor del Switch */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 160px !important;
+            height: 56px !important;
+            /* Un poco más alto */
+            margin-bottom: 0;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        /* El fondo del botón */
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #777 !important;
+            /* Gris oscuro para que resalte */
+            transition: .4s;
+            border-radius: 50px !important;
+            border: 2px solid #555;
+        }
+
+        /* El círculo blanco que desliza */
+        .slider:before {
+            position: absolute;
+            content: "" !important;
+            height: 44px !important;
+            width: 44px !important;
+            left: 6px !important;
+            bottom: 4px !important;
+            background-color: white !important;
+            transition: .4s;
+            border-radius: 50% !important;
+            z-index: 10 !important;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Color cuando está CONECTADO (Verde brillante) */
+        input:checked+.slider {
+            background-color: #28a745 !important;
+            border-color: #1e7e34;
+        }
+
+        /* DESPLAZAMIENTO: El círculo viaja 104px a la derecha para llegar al final */
+        input:checked+.slider:before {
+            transform: translateX(104px) !important;
+        }
+
+        /* TEXTO DENTRO DEL BOTÓN */
+        .slider:after {
+            content: "OFF" !important;
+            color: white !important;
+            position: absolute !important;
+            top: 50% !important;
+            right: 20px !important;
+            transform: translateY(-50%) !important;
+            font-size: 14px !important;
+            font-weight: 800 !important;
+            font-family: 'Arial', sans-serif !important;
+            letter-spacing: 1px;
+        }
+
+        input:checked+.slider:after {
+            content: "CONECTADO" !important;
+            left: 15px !important;
+            right: auto !important;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar mb-5">
+        <div class="container">
+            <span class="navbar-brand mb-0 h1 text-white">MoveG | Panel de Socio</span>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="profile-card text-center pb-4">
+                    <div class="profile-header"></div>
+
+                    <img src="{{ url_for('static', filename='uploads/' + c.foto_rostro) if c.foto_rostro else 'https://via.placeholder.com/130' }}"
+                        class="profile-img shadow-sm" alt="Foto Perfil">
+
+                    <div class="card-body mt-3">
+                        <h2 class="fw-bold">{{ c.nombre_completo }}</h2>
+                        <p class="text-muted"><i class="bi bi-car-front"></i> Placa: <span class="badge bg-dark">{{
+                                c.placa_vehiculo }}</span></p>
+
+                        <div class="text-center my-4">
+                            <p class="mb-1"><strong>Estatus del Conductor</strong></p>
+                            <div class="py-3">
+                                <label class="switch">
+                                    <input type="checkbox" {% if c.estado|trim|lower=='conectado' %} checked {% endif %}
+                                        onchange="toggleEstado({{ c.id }})">
+                                    <span class="slider"></span>
+                                </label>
+                                <p style="color: red;">Estado actual: [{{ c.estado }}]</p>
+                            </div>
+                        </div>
+
+                        <div class="row text-start mt-5 px-4">
+                            <div class="col-6 mb-3">
+                                <small class="text-muted d-block">Teléfono</small>
+                                <strong>{{ c.telefono }}</strong>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <small class="text-muted d-block">Año del Vehículo</small>
+                                <strong>{{ c.aniovan }}</strong>
+                            </div>
+                            <div class="col-12">
+                                <small class="text-muted d-block">Fecha de Registro</small>
+                                <strong>{{ c.fecha_registro }}</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-footer bg-white border-0 mt-3">
+                        <button class="btn btn-outline-success w-100 mb-2">Editar Perfil</button>
+                        <a href="{{ url_for('logout') }}" class="btn btn-link text-muted">Cerrar Sesión</a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleEstado(id) {
+            fetch('/cambiar_estado/' + id, {
+                method: 'POST',
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert('Error: ' + data.error);
+                        return;
+                    }
+                    const checkbox = document.querySelector('.switch input[type="checkbox"]');
+                    const statusP = document.querySelector('p[style*="color: red"]');
+                    checkbox.checked = data.estado === 'conectado';
+                    statusP.textContent = 'Estado actual: [' + data.estado + ']';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al cambiar estado');
+                });
+        }
+    </script>
+
+</body>
+
+</html>

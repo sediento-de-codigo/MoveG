@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MoveG - Registro de Socios</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        /* Estilos personalizados para el color corporativo de MoveG */
+        :root {
+            --moveg-primary: #198754;
+            /* El verde que ya usabas, pero definido */
+            --moveg-hover: #146c43;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            /* Un gris muy suave de fondo */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .main-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .form-card {
+            background: white;
+            border-radius: 15px;
+            /* Bordes redondeados modernos */
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            /* Sombra suave para dar profundidad */
+            padding: 40px;
+            width: 100%;
+            max-width: 600px;
+            /* Ancho máximo para que no se estire demasiado */
+            border-top: 5px solid var(--moveg-primary);
+            /* Una línea verde elegante arriba */
+        }
+
+        .form-header h1 {
+            color: var(--moveg-primary);
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .form-header p {
+            color: #6c757d;
+            margin-bottom: 30px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+        }
+
+        .form-label i {
+            margin-right: 8px;
+            /* Espacio para los iconos */
+            color: #adb5bd;
+        }
+
+        .form-control {
+            border-radius: 8px;
+            padding: 12px;
+            border: 1px solid #ced4da;
+            transition: all 0.2s;
+        }
+
+        .form-control:focus {
+            border-color: #198754;
+            box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
+        }
+
+        .input-group-text {
+            background-color: white;
+            border-radius: 8px 0 0 8px;
+            color: #adb5bd;
+        }
+
+        .input-group .form-control {
+            border-radius: 0 8px 8px 0;
+        }
+
+        .btn-register {
+            background-color: var(--moveg-primary);
+            border: none;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: background-color 0.2s;
+            margin-top: 20px;
+        }
+
+        .btn-register:hover {
+            background-color: var(--moveg-hover);
+            color: white;
+        }
+
+        /* Estilos para los campos de subida de archivos */
+        .file-upload-wrapper {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .file-upload-info {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-top: 5px;
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="main-container">
+        <div class="form-card">
+            <div class="form-header text-center">
+                <h1>Bienvenido a MoveG</h1>
+                <p>Por favor, completa tus datos para registrarte como socio conductor.</p>
+            </div>
+
+            <form action="/registro_conductor" method="POST" enctype="multipart/form-data">
+
+                <div class="mb-4">
+                    <label class="form-label"><i class="bi bi-person-fill"></i> Nombre Completo:</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-person"></i></span>
+                        <input type="text" name="nombre" class="form-control" placeholder="Ej: Juan Pérez" required>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label"><i class="bi bi-telephone-fill"></i> Teléfono de Contacto:</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-phone"></i></span>
+                        <input type="tel" name="telefono" class="form-control" placeholder="Ej: +58 412 1234567"
+                            required>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label"><i class="bi bi-calendar-event-fill"></i> Año del Vehículo:</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-calendar"></i></span>
+                        <input type="number" name="aniovan" class="form-control" placeholder="Ej: 2022" required>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label"><i class="bi bi-card-checklist"></i> Placa del Vehículo:</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-car-front-fill"></i></span>
+                        <input type="text" name="placa_vehiculo" class="form-control" placeholder="Ej: ABC-123X"
+                            style="text-transform: uppercase;" required>
+                    </div>
+                </div>
+
+                <hr class="my-5 text-muted">
+                <h5 class="mb-4 text-center text-secondary">Documentación Fotográfica</h5>
+
+                <div class="mb-4 file-upload-wrapper">
+                    <label class="form-label"><i class="bi bi-camera-fill"></i> Foto de Rostro:</label>
+                    <input type="file" name="foto_rostro" class="form-control" accept="image/*">
+                    <span class="file-upload-info">Asegúrate de que sea una foto de frente y con buena luz.</span>
+                </div>
+
+                <div class="mb-4 file-upload-wrapper">
+                    <label class="form-label"><i class="bi bi-car-front-fill"></i> Foto del Vehículo:</label>
+                    <input type="file" name="foto_vehiculo" class="form-control" accept="image/*">
+                    <span class="file-upload-info">Una foto del vehículo completo con la placa visible.</span>
+                </div>
+
+                <div class="mb-4 file-upload-wrapper">
+                    <label class="form-label"><i class="bi bi-card-id"></i> Foto de Cédula de Identidad:</label>
+                    <input type="file" name="foto_cedula" class="form-control" accept="image/*">
+                    <span class="file-upload-info">Foto legible por ambas caras.</span>
+                </div>
+
+                <div class="mb-4 file-upload-wrapper">
+                    <label class="form-label"><i class="bi bi-person-badge"></i> Foto de Licencia de Conducir:</label>
+                    <input type="file" name="foto_licencia" class="form-control" accept="image/*">
+                    <span class="file-upload-info">Vigente y legible.</span>
+                </div>
+
+                <button type="submit" class="btn-register w-100 shadow-sm">
+                    <i class="bi bi-send-fill me-2"></i> Registrarse como Socio Conductor
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
