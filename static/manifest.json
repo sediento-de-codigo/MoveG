@@ -2,7 +2,7 @@
   "name": "MoveG - Transporte Nacional",
   "short_name": "MoveG",
   "start_url": "/",
-  "display": "standalone",
+  "display": "fullscreen",
   "background_color": "#ffffff",
   "theme_color": "#007bff",
   "description": "Sistema de transporte masivo con rutas inteligentes en Venezuela.",
