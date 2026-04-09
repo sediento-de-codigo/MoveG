@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro Pasajero - MoveG</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register("/static/sw.js")
+                    .then(reg => console.log('MoveG PWA Registrada', reg))
+                    .catch(err => console.log('Fallo al registrar PWA', err));
+            });
+        }
+    </script>
+
+
+</head>
+
+<body>
+    <div class="container">
+        <h2>Únete a MoveG</h2>
+        <p>Viaja seguro y rápido</p>
+
+        <form action="/registro_pasajero" method="POST">
+            <div class="form-group">
+                <input type="text" name="nombre" placeholder="Nombre Completo" required>
+            </div>
+            <div class="form-group">
+                <input type="email" name="correo" placeholder="Correo electrónico" required>
+            </div>
+            <div class="form-group">
+                <input type="text" name="telefono" placeholder="Número de teléfono (WhatsApp)" required>
+            </div>
+            <div class="form-group">
+                <input type="password" name="clave" placeholder="Crea tu contraseña" required>
+            </div>
+            <button type="submit">Crear cuenta de pasajero</button>
+        </form>
+
+        <div class="link-footer" style="margin-top: 20px; display: flex; justify-content:space-between;">
+            ¿Ya tienes cuenta? <a href="/login_pasajero">Inicia sesión</a>
+
+            <a href="{{ url_for('index') }}" style="text-decoration: none; color: #666; font-size: 0.9rem">
+                ← Volver al inicio
+            </a>
+
+        </div>
+
+    </div>
+
+    </div>
+</body>
+
+</html>

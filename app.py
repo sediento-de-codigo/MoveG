@@ -210,14 +210,16 @@ def registro_pasajero():
         nombre = request.form.get("nombre")
         telefono = request.form.get("telefono")
         correo = request.form.get("correo")
-
+        clave = request.form.get("clave")
         db = None
+        if not clave:
+            return "Error: La contraseña es obligatoria", 400
         try:
             db = obtener_conexion()
             with db.cursor() as cursor:
-                sql = """INSERT INTO pasajeros (nombre_completo, telefono, correo) 
-                         VALUES (%s, %s, %s)"""
-                cursor.execute(sql, (nombre, telefono, correo))
+                sql = """INSERT INTO pasajeros (nombre_completo, telefono, correo, password_hash) 
+                         VALUES (%s, %s, %s, %s)"""
+                cursor.execute(sql, (nombre, telefono, correo, clave))
                 nuevo_id = cursor.lastrowid
 
                 # --- ACTIVAMOS LA SESIÓN ---
@@ -236,13 +238,12 @@ def registro_pasajero():
             if db:
                 db.close()
 
-                return render_template("registro_pasajero.html")
+    return render_template("registro_pasajero.html")
 
 
 @app.route("/logout")
 def logout():
     session.clear()  # Borra toda la información de la sesión actual
-    print("Log out exitoso: Sesión limpiada.")
     return redirect(url_for("index"))  # Te manda de vuelta al selector de roles
 
 
@@ -299,9 +300,43 @@ def login_conductor():
     return render_template("login_conductor.html")
 
 
-@app.route("/login_pasajero")
+@app.route("/login_pasajero", methods=["GET", "POST"])
 def login_pasajero():
-    return "<h1>Próximamente: Login de Pasajero</h1><a href='/'>Volver</a>"
+    if request.method == "POST":
+        correo = request.form["correo"]
+        clave = request.form["clave"]
+
+        db = obtener_conexion()
+        # Usamos dictionary=True para manejar los resultados como un objeto de Python
+        cursor = db.cursor()
+
+        query = "SELECT * FROM pasajeros WHERE correo = %s AND password_hash = %s"
+        cursor.execute(query, (correo, clave))
+        pasajero = cursor.fetchone()
+
+        db.close()
+
+        if pasajero:
+            # Creamos la sesión del usuario
+            session["user_id"] = pasajero["id"]
+            session["user_name"] = pasajero["nombre_completo"]
+            session["user_role"] = "pasajero"
+
+            return redirect(url_for("panel_pasajero"))
+        else:
+            return render_template(
+                "login_pasajero.html", error="Correo o clave incorrectos"
+            )
+
+    return render_template("login_pasajero.html")
+
+
+@app.route("/panel_pasajero")
+def panel_pasajero():
+    if "user_id" in session and session.get("user_role") == "pasajero":
+        return f"<h1>Bienvenido al Panel de Pasajeros, {session['user_name']}</h1><a href='/logout'>Cerrar Sesión</a>"
+
+    return redirect(url_for("registro_pasajero"))
 
 
 if __name__ == "__main__":

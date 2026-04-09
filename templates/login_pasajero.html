@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión - MoveG</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register("/static/sw.js")
+                    .then(reg => console.log('MoveG PWA Registrada', reg))
+                    .catch(err => console.log('Fallo al registrar PWA', err));
+            });
+        }
+    </script>
+
+</head>
+
+<body>
+    <div class="container">
+        <h2>MovilGroup</h2>
+        <p>Viaja seguro y rápido</p>
+
+
+        <form action="/login_pasajero" method="POST">
+            <div class="form-group">
+                <input type="email" name="correo" placeholder="Correo electrónico" required>
+            </div>
+
+            <div class="form-group">
+                <input type="password" name="clave" placeholder="Contraseña" required>
+            </div>
+
+            <button type="submit">Iniciar Sesión</button>
+
+        </form>
+        {% if error %}
+        <div
+            style="color: #721c24; background-color: #f8d7da; border: 1px solid #f5c6cb; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 0.9rem;">
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <div class="link-footer">
+            <p>¿No tienes cuenta? <a href="{{ url_for('registro_pasajero') }}">Quiero Registrarme</a></p>
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">
+            <a href="{{ url_for('index') }}" style="color: #666; font-size: 0.9rem; text-decoration: none;">
+                ← Volver al inicio
+            </a>
+        </div>
+    </div>
+</body>
+
+</html>
