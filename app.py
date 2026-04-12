@@ -209,7 +209,7 @@ def registro_pasajero():
     if request.method == "POST":
         nombre = request.form.get("nombre")
         telefono = request.form.get("telefono")
-        correo = request.form.get("correo")
+        email = request.form.get("correo")
         clave = request.form.get("clave")
         db = None
         if not clave:
@@ -219,7 +219,7 @@ def registro_pasajero():
             with db.cursor() as cursor:
                 sql = """INSERT INTO pasajeros (nombre_completo, telefono, correo, password_hash) 
                          VALUES (%s, %s, %s, %s)"""
-                cursor.execute(sql, (nombre, telefono, correo, clave))
+                cursor.execute(sql, (nombre, telefono, email, clave))
                 nuevo_id = cursor.lastrowid
 
                 # --- ACTIVAMOS LA SESIÓN ---

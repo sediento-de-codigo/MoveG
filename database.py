@@ -1,4 +1,6 @@
 import pymysql
+import mysql.connector
+from mysql.connector import Error
 
 # Configuramos los datos una sola vez
 CONFIG = {
