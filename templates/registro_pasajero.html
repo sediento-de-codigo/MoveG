@@ -55,5 +55,39 @@
 
     </div>
 </body>
+<script document.getElementById('formBusqueda').addEventListener('submit', async (e)=> {
+        e.preventDefault(); // Evita que la página se recargue
+
+        // Preparamos los datos (puedes obtener lat/lng de la API de Geolocalización)
+        const datosBusqueda = {
+            lat: 10.1880,
+            lng: -67.9400,
+            asientos: document.getElementById('inputAsientos').value
+        };
+
+        try {
+            const respuesta = await fetch('http://127.0.0.1:5001/buscar_viaje', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(datosBusqueda)
+            });
+
+            const resultado = await respuesta.json();
+
+            if (resultado.estado === 'exito') {
+                alert(`¡Vehículo encontrado! Modelo: ${resultado.vehiculo.modelo}`);
+                // Aquí podrías redirigir a una pantalla de "Viaje en curso"
+            } else {
+                alert(resultado.mensaje);
+            }
+
+        } catch (error) {
+            console.error('Error en la conexión:', error);
+            alert('No se pudo conectar con el servidor de MoveG');
+        }
+    };
+</script>
 
 </html>

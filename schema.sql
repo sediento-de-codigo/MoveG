@@ -1,6 +1,6 @@
 -- Creación de la base de datos (si no existe)
-CREATE DATABASE IF NOT EXISTS moveg_db;
-USE moveg_db;
+CREATE DATABASE IF NOT EXISTS movilgroup;
+USE movilgroup;
 
 -- 1. Tabla de Usuarios
 CREATE TABLE IF NOT EXISTS usuarios (

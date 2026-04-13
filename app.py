@@ -1,3 +1,4 @@
+import pymysql
 import os
 from datetime import datetime
 from flask import (
@@ -209,7 +210,7 @@ def registro_pasajero():
     if request.method == "POST":
         nombre = request.form.get("nombre")
         telefono = request.form.get("telefono")
-        email = request.form.get("correo")
+        correo = request.form.get("email")
         clave = request.form.get("clave")
         db = None
         if not clave:
@@ -219,7 +220,7 @@ def registro_pasajero():
             with db.cursor() as cursor:
                 sql = """INSERT INTO pasajeros (nombre_completo, telefono, correo, password_hash) 
                          VALUES (%s, %s, %s, %s)"""
-                cursor.execute(sql, (nombre, telefono, email, clave))
+                cursor.execute(sql, (nombre, telefono, correo, clave))
                 nuevo_id = cursor.lastrowid
 
                 # --- ACTIVAMOS LA SESIÓN ---
@@ -340,7 +341,7 @@ def panel_pasajero():
 
 
 from flask import Flask, request, jsonify
-from database import conectar_db
+from database import obtener_conexion as conectar_db
 from motor_logica import validar_cupo_y_ruta  # Importamos el "cerebro"
 
 
@@ -352,33 +353,49 @@ def buscar_viaje():
     lng_usuario = datos.get("lng")
     asientos_pedidos = datos.get("asientos", 1)
 
+    # 1. Define el radio en kilómetros (ejemplo: 10km para ser más flexible en Los Guayos)
+    RADIO_MAXIMO_KM = 10.0
+
     solicitud = {
         "lat_inicio": lat_usuario,
         "lng_inicio": lng_usuario,
         "asientos_pedidos": asientos_pedidos,
     }
 
-    conexion = conectar_db()
+    conexion = obtener_conexion()
     if not conexion:
         return jsonify({"error": "Error de conexión"}), 500
 
     try:
-        cursor = conexion.cursor(dictionary=True)
+        cursor = conexion.cursor()
         # Buscamos vehículos activos (Esto simula los que están en ruta)
         # En una fase real, aquí filtraríamos por 'estatus = en_ruta'
-        cursor.execute("SELECT * FROM vehiculos")
-        vehiculos_candidatos = cursor.fetchall()
+        cursor.execute("SELECT * FROM vehiculos WHERE estatus = 'activo'")
+        vehiculos = cursor.fetchall()
 
-        for v in vehiculos_candidatos:
+        coincidencias = []
+
+        for v in vehiculos:
             # Simulamos datos de ruta activa (esto vendría de otra tabla o de la RAM)
             # Por ahora, usamos una ubicación fija de prueba
             v["lat_actual"] = 10.1870  # Ejemplo: Cerca de Los Guayos
             v["lng_actual"] = -67.9390
             v["asientos_ocupados"] = 4  # Simulación de carga actual
+            # Aquí usas tu función de Haversine o similar
+            distancia = calcular_distancia(
+                lat_pasajero, lng_pasajero, v["lat_actual"], v["lng_actual"]
+            )
 
-            exito, resultado = validar_cupo_y_ruta(solicitud, v)
+            if distancia <= RADIO_MAXIMO_KM:
+                v["distancia_km"] = round(distancia, 2)
+                coincidencias.append(v)
 
-            if exito:
+            # Ordenar por el más cercano
+            coincidencias.sort(key=lambda x: x["distancia_km"])
+
+            # exito, resultado = validar_cupo_y_ruta(solicitud, v)
+
+            if coincidencias:
                 return jsonify(
                     {
                         "estado": "coincidencia_encontrada",
@@ -399,6 +416,23 @@ def buscar_viaje():
 
     finally:
         conexion.close()
+
+
+@app.route("/api/obtener_solicitudes")
+def obtener_solicitudes():
+    conexion = obtener_conexion()
+    cursor = conexion.cursor(pymysql.cursors.DictCursor)
+
+    # IMPORTANTE: Usamos los nombres de tu tabla 'solicitudes'
+    query = """
+        SELECT s.id, u.nombre as pasajero, s.tipo_servicio, 
+               s.direccion_destino, s.precio_estimado
+        FROM solicitudes s
+        JOIN usuarios u ON s.usuario_id = u.id
+        WHERE s.estatus = 'pendiente'
+    """
+    cursor.execute(query)
+    return jsonify(cursor.fetchall())
 
 
 if __name__ == "__main__":

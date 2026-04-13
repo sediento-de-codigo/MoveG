@@ -208,31 +208,70 @@
                 </div>
             </div>
         </div>
+        <div class="row justify-content-center mt-4">
+            <div class="col-md-8 col-lg-6">
+                <div class="profile-card p-3">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-list-ul"></i> Solicitudes en Los Guayos</h5>
+                    <div id="contenedor-solicitudes">
+                        <p class="text-muted">Buscando solicitudes cercanas...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-
     <script>
-        function toggleEstado(id) {
-            fetch('/cambiar_estado/' + id, {
-                method: 'POST',
-            })
+        function cargarSolicitudes() {
+            fetch('/api/obtener_solicitudes')
                 .then(response => response.json())
                 .then(data => {
-                    if (data.error) {
-                        alert('Error: ' + data.error);
+                    const contenedor = document.getElementById('contenedor-solicitudes');
+                    if (data.length === 0) {
+                        contenedor.innerHTML = '<p class="text-muted">No hay solicitudes pendientes en este momento.</p>';
                         return;
                     }
-                    const checkbox = document.querySelector('.switch input[type="checkbox"]');
-                    const statusP = document.querySelector('p[style*="color: red"]');
-                    checkbox.checked = data.estado === 'conectado';
-                    statusP.textContent = 'Estado actual: [' + data.estado + ']';
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error al cambiar estado');
-                });
-        }
-    </script>
 
+                    let html = '<div class="list-group">';
+                    data.forEach(s => {
+                        html += `
+        <div class="list-group-item list-group-item-action border-0 shadow-sm mb-2 rounded">
+            <div class="d-flex w-100 justify-content-between">
+                <h6 class="mb-1"><b>Pasajero:</b> ${s.pasajero}</h6>
+                <small class="text-success fw-bold">${s.precio_estimado} $</small>
+            </div>
+            <p class="mb-1 small">Destino: ${s.direccion_destino}</p>
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="badge bg-info text-dark">${s.tipo_servicio}</span>
+                <button class="btn btn-primary btn-sm" onclick="aceptarViaje(${s.id})">Aceptar</button>
+            </div>
+        </div>`;
+                    });
+                    html += '
+    </div > ';
+                    contenedor.innerHTML = html;
+                })
+                .catch(err => console.error('Error al cargar solicitudes:', err));
+        }
+
+        function aceptarViaje(id) {
+            if (confirm('¿Deseas aceptar este viaje?')) {
+                fetch('/aceptar_viaje/' + id, { method: 'POST' })
+                    .then(res => res.json())
+                    .then(data => {
+                        alert(data.mensaje);
+                        cargarSolicitudes(); // Recargar lista
+                    });
+            }
+        }
+
+        // Cargar al iniciar y luego cada 10 segundos
+        document.addEventListener('DOMContentLoaded', () => {
+            cargarSolicitudes();
+            setInterval(cargarSolicitudes, 10000);
+        });
+
+        // Tu función original toggleEstado se mantiene igual abajo...
+
+    </script>
 </body>
 
 </html>
