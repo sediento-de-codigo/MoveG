@@ -1,3 +1,28 @@
+import math
+
+
+def calcular_distancia(lat1, lng1, lat2, lng2):
+    if lat1 is None or lng1 is None or lat2 is None or lng2 is None:
+        return float("inf")
+
+    try:
+        lat1 = float(lat1)
+        lng1 = float(lng1)
+        lat2 = float(lat2)
+        lng2 = float(lng2)
+    except (TypeError, ValueError):
+        return float("inf")
+
+    R = 6371.0
+    phi1 = math.radians(lat1)
+    phi2 = math.radians(lat2)
+    dphi = math.radians(lat2 - lat1)
+    dlambda = math.radians(lng2 - lng1)
+    a = math.sin(dphi / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(dlambda / 2) ** 2
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    return R * c
+
+
 def validar_cupo_y_ruta(solicitud_nueva, vehiculo_activo, margen_km=1.5):
     """
     Verifica si una solicitud puede unirse a un vehículo en movimiento.

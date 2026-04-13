@@ -1,5 +1,6 @@
 import pymysql
 import os
+import math
 from datetime import datetime
 from flask import (
     Flask,
@@ -23,17 +24,42 @@ if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
 
+def calcular_distancia(lat1, lng1, lat2, lng2):
+    if lat1 is None or lng1 is None or lat2 is None or lng2 is None:
+        return float("inf")
+
+    try:
+        lat1 = float(lat1)
+        lng1 = float(lng1)
+        lat2 = float(lat2)
+        lng2 = float(lng2)
+    except (TypeError, ValueError):
+        return float("inf")
+
+    R = 6371.0
+    phi1 = math.radians(lat1)
+    phi2 = math.radians(lat2)
+    dphi = math.radians(lat2 - lat1)
+    dlambda = math.radians(lng2 - lng1)
+    a = (
+        math.sin(dphi / 2) ** 2
+        + math.cos(phi1) * math.cos(phi2) * math.sin(dlambda / 2) ** 2
+    )
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    return R * c
+
+
 @app.route("/")
 def index():
     # 1. Usamos .get() para evitar el KeyError si la llave no existe
     user_id = session.get("user_id")
     rol = session.get("rol")
     # Si ya sabemos quién es, lo mandamos a su lugar
-    if "user_id" and rol:
-        if "rol" == "conductor":
-            return redirect(url_for("panel_conductor", id=session["user_id"]))
+    if user_id and rol:
+        if rol == "conductor":
+            return redirect(url_for("panel_conductor", id=user_id))
         else:
-            return redirect(url_for("panel_pasajero", id=session["user_id"]))
+            return redirect(url_for("panel_pasajero"))
 
     # Si no hay sesión, mostramos el selector de opciones
     return render_template("index.html")
@@ -130,7 +156,7 @@ def registro_conductor():
     return render_template("registro_conductor.html")
 
 
-@app.route("/panel_conductor/<int:id>")
+@app.route("/panel_conductor")
 def panel_conductor(id):
     # Validar que el usuario logueado sea el dueño del panel
     if "user_id" not in session or session["user_id"] != id:
@@ -186,8 +212,6 @@ def cambiar_estado(id):
             "UPDATE conductores SET estado = %s WHERE id = %s", (nuevo_estado, id)
         )
 
-        if request.method == "POST":
-            return jsonify({"error": "Conductor no encontrado"}), 404
     except Exception as e:
         print(f"❌ Error al cambiar estado: {e}")
         if db:
@@ -202,7 +226,7 @@ def cambiar_estado(id):
         return jsonify({"estado": nuevo_estado})
     else:
         # 4. Redirigir al panel (esto forzará a la página a leer el nuevo valor)
-        return redirect(url_for("panel_conductor.html", id=id))
+        return redirect(url_for("panel_conductor", id=id))
 
 
 @app.route("/registro_pasajero", methods=["GET", "POST"])
@@ -229,7 +253,7 @@ def registro_pasajero():
 
             print(f"✅ Pasajero registrado con ID: {nuevo_id}")
             # Redirigimos a un panel de pasajeros (que crearemos luego)
-            return redirect(url_for("panel_pasajero", id=nuevo_id))
+            return redirect(url_for("panel_pasajero"))
 
         except Exception as e:
             if "1062" in str(e):
@@ -335,13 +359,13 @@ def login_pasajero():
 @app.route("/panel_pasajero")
 def panel_pasajero():
     if "user_id" in session and session.get("user_role") == "pasajero":
-        return f"<h1>Bienvenido al Panel de Pasajeros, {session['user_name']}</h1><a href='/logout'>Cerrar Sesión</a>"
+        # return f"<h1>Bienvenido al Panel de Pasajeros, {session['user_name']}</h1><a href='/logout'>Cerrar Sesión</a>"
 
-    return redirect(url_for("registro_pasajero"))
+        return render_template("panel_pasajero.html", nombre=session.get("user_name"))
+
+    return redirect(url_for("login_pasajero"))
 
 
-from flask import Flask, request, jsonify
-from database import obtener_conexion as conectar_db
 from motor_logica import validar_cupo_y_ruta  # Importamos el "cerebro"
 
 
@@ -367,7 +391,7 @@ def buscar_viaje():
         return jsonify({"error": "Error de conexión"}), 500
 
     try:
-        cursor = conexion.cursor()
+        cursor = conexion.cursor(pymysql.cursors.DictCursor)
         # Buscamos vehículos activos (Esto simula los que están en ruta)
         # En una fase real, aquí filtraríamos por 'estatus = en_ruta'
         cursor.execute("SELECT * FROM vehiculos WHERE estatus = 'activo'")
@@ -381,26 +405,24 @@ def buscar_viaje():
             v["lat_actual"] = 10.1870  # Ejemplo: Cerca de Los Guayos
             v["lng_actual"] = -67.9390
             v["asientos_ocupados"] = 4  # Simulación de carga actual
-            # Aquí usas tu función de Haversine o similar
             distancia = calcular_distancia(
-                lat_pasajero, lng_pasajero, v["lat_actual"], v["lng_actual"]
+                lat_usuario, lng_usuario, v["lat_actual"], v["lng_actual"]
             )
 
             if distancia <= RADIO_MAXIMO_KM:
                 v["distancia_km"] = round(distancia, 2)
                 coincidencias.append(v)
 
-            # Ordenar por el más cercano
-            coincidencias.sort(key=lambda x: x["distancia_km"])
+        coincidencias.sort(key=lambda x: x["distancia_km"])
 
-            # exito, resultado = validar_cupo_y_ruta(solicitud, v)
-
-            if coincidencias:
+        for v in coincidencias:
+            exito, resultado = validar_cupo_y_ruta(solicitud, v)
+            if exito:
                 return jsonify(
                     {
                         "estado": "coincidencia_encontrada",
                         "vehiculo_id": v["id"],
-                        "modelo": v["modelo"],
+                        "modelo": v.get("modelo"),
                         "precio_ahorro": resultado["precio"],
                         "distancia_km": resultado["distancia_recogida"],
                         "mensaje": resultado["mensaje"],
@@ -421,18 +443,76 @@ def buscar_viaje():
 @app.route("/api/obtener_solicitudes")
 def obtener_solicitudes():
     conexion = obtener_conexion()
-    cursor = conexion.cursor(pymysql.cursors.DictCursor)
+    try:
+        cursor = conexion.cursor(pymysql.cursors.DictCursor)
 
-    # IMPORTANTE: Usamos los nombres de tu tabla 'solicitudes'
-    query = """
-        SELECT s.id, u.nombre as pasajero, s.tipo_servicio, 
-               s.direccion_destino, s.precio_estimado
-        FROM solicitudes s
-        JOIN usuarios u ON s.usuario_id = u.id
-        WHERE s.estatus = 'pendiente'
-    """
-    cursor.execute(query)
-    return jsonify(cursor.fetchall())
+        # IMPORTANTE: Usamos los nombres de tu tabla 'solicitudes'
+        query = """
+            SELECT s.id, u.nombre as pasajero, s.tipo_servicio, 
+                   s.direccion_destino, s.precio_estimado
+            FROM solicitudes s
+            JOIN usuarios u ON s.usuario_id = u.id
+            WHERE s.estatus = 'pendiente'
+        """
+        cursor.execute(query)
+        return jsonify(cursor.fetchall())
+    finally:
+        conexion.close()
+
+
+@app.route("/crear_solicitud", methods=["POST"])
+def crear_solicitud():
+    # 1. Seguridad: Verificar que el usuario esté logueado
+    if "user_id" not in session:
+        return redirect(url_for("login_pasajero"))
+
+    # 2. Captura de datos del formulario (names del HTML)
+    usuario_id = session["user_id"]
+    direccion_destino = request.form.get("direccion_destino")
+    cantidad_asientos = request.form.get("cantidad_asientos", 1)
+    precio_oferta = request.form.get("precio_estimado")
+
+    # Valores técnicos por defecto (puedes hacerlos dinámicos luego con el mapa)
+    lat_inicio = 10.1880
+    lng_inicio = -67.9400
+    tipo_servicio = "Express"
+
+    try:
+        conexion = obtener_conexion()
+        cursor = conexion.cursor()
+
+        # 3. Query de Inserción
+        # El estatus siempre empieza en 'pendiente'
+        query = """
+            INSERT INTO solicitudes 
+            (usuario_id, tipo_servicio, cantidad_asientos, lat_inicio, lng_inicio, 
+             direccion_destino, precio_estimado, estatus) 
+            VALUES (%s, %s, %s, %s, %s, %s, %s, 'pendiente')
+        """
+
+        valores = (
+            usuario_id,
+            tipo_servicio,
+            cantidad_asientos,
+            lat_inicio,
+            lng_inicio,
+            direccion_destino,
+            precio_oferta,
+        )
+
+        cursor.execute(query, valores)
+        conexion.commit()  # ¡Importante para guardar cambios!
+
+        print(f"✅ Nueva solicitud creada por el usuario {usuario_id}")
+
+    except Exception as e:
+        print(f"❌ Error en DB: {e}")
+        return "Error interno del servidor", 500
+    finally:
+        conexion.close()
+
+    # 4. Redirigir de vuelta al panel para esperar al conductor
+    return redirect(url_for("panel_pasajero"))
 
 
 if __name__ == "__main__":

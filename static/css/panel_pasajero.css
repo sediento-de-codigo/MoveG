@@ -1,0 +1,73 @@
+/* Estilos Base Mobile-First */
+body, html { 
+    height: 100%; 
+    margin: 0; 
+    overflow: hidden; /* Evita scrolls raros */
+}
+
+#map {
+    position: absolute;
+    top: 0; bottom: 0; left: 0; right: 0;
+    z-index: 1;
+}
+
+/* Contenedor del Formulario - ESTILO MOBILE */
+.request-card {
+    position: absolute;
+    bottom: 0; /* En móvil, se pega abajo */
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: white;
+    border-radius: 25px 25px 0 0; /* Bordes redondeados arriba */
+    box-shadow: 0 -5px 20px rgba(0,0,0,0.15);
+    padding: 20px;
+    max-height: 70%;
+    overflow-y: auto;
+    transition: all 0.3s ease;
+}
+
+/* ESTILO PARA PC (Pantallas mayores a 768px) */
+@media (min-width: 768px) {
+    .request-card {
+        top: 20px;
+        left: 20px;
+        bottom: auto;
+        right: auto;
+        width: 380px;
+        border-radius: 15px;
+        max-height: 90vh;
+    }
+}
+
+/* Estilización de Inputs */
+.form-label { font-size: 0.85rem; margin-bottom: 2px; }
+
+.input-group-text {
+    background-color: transparent;
+    border-right: none;
+    color: #6c757d;
+}
+
+.form-control {
+    border-left: none;
+    font-size: 1rem;
+    padding: 10px;
+}
+
+.form-control:focus {
+    box-shadow: none;
+    border-color: #dee2e6;
+}
+
+/* Botón Estilo MoveG */
+.btn-solicitar {
+    background-color: #198754;
+    color: white;
+    font-weight: bold;
+    border-radius: 12px;
+    padding: 15px;
+    border: none;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
