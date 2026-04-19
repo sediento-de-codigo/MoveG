@@ -142,7 +142,7 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register("/static/sw.js")
+                navigator.serviceWorker.register("/sw.js")
                     .then(reg => console.log('MoveG PWA Registrada', reg))
                     .catch(err => console.log('Fallo al registrar PWA', err));
             });
@@ -202,7 +202,7 @@
 
                     <div class="card-footer bg-white border-0 mt-3">
                         <button class="btn btn-outline-success w-100 mb-2">Editar Perfil</button>
-                        <a href="{{ url_for('logout') }}" class="btn btn-link text-muted">Cerrar Sesión</a>
+                        <a href="{{ url_for('auth.logout') }}" class="btn btn-link text-muted">Cerrar Sesión</a>
                     </div>
 
                 </div>

@@ -13,7 +13,7 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register("/static/sw.js")
+                navigator.serviceWorker.register("/sw.js")
                     .then(reg => console.log('MoveG PWA Registrada', reg))
                     .catch(err => console.log('Fallo al registrar PWA', err));
             });
@@ -38,10 +38,11 @@
                             <h3 class="card-title fw-bold">Conductor</h3>
                             <p class="card-text text-muted">Genera ingresos manejando con nosotros.</p>
                             <div class="d-grid gap-2">
-                                <a href="{{ url_for('login_conductor') }}" class="btn btn-primary fw-bold">Iniciar
+                                <a href="{{ url_for('auth.login') }}" class="btn btn-primary fw-bold">Iniciar
                                     Sesión</a>
-                                <a href="{{ url_for('registro_conductor') }}"
-                                    class="btn btn-outline-primary btn-sm">Registrate</a>
+
+                                <a href="{{ url_for('auth.registro_conductor') }}"
+                                    class="btn btn-outline-primary btn-sm">Resgistrate</a>
                             </div>
                         </div>
                     </div>
@@ -56,10 +57,11 @@
                             <h3 class="card-title fw-bold">Pasajero</h3>
                             <p class="card-text text-muted">Viaja seguro y rápido a tu destino.</p>
                             <div class="d-grid gap-2">
-                                <a href="{{ url_for('login_pasajero') }}" class="btn btn-success fw-bold">Iniciar
+                                <a href="{{ url_for('auth.login') }}" class="btn btn-success fw-bold">Iniciar
                                     Sesión</a>
-                                <a href="{{ url_for('registro_pasajero') }}"
+                                <a href="{{ url_for('auth.registro_pasajero') }}"
                                     class="btn btn-outline-success btn-sm">Registrate</a>
+
                             </div>
                         </div>
                     </div>
