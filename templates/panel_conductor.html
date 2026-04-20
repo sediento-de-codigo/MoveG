@@ -176,11 +176,13 @@
                             <p class="mb-1"><strong>Estatus del Conductor</strong></p>
                             <div class="py-3">
                                 <label class="switch">
-                                    <input type="checkbox" {% if c.estado|trim|lower=='conectado' %} checked {% endif %}
-                                        onchange="toggleEstado({{ c.id }})">
+                                    <input type="checkbox" id="status-switch" {% if c.estado|trim|lower=='conectado' %}
+                                        checked {% endif %} onchange="toggleEstado({{ c.id }})">
                                     <span class="slider"></span>
                                 </label>
-                                <p style="color: red;">Estado actual: [{{ c.estado }}]</p>
+                                <p>Estado actual: <span class="badge">
+                                        {{ c.estado if c.estado != '' else 'Desconectado' }}
+                                    </span></p>
                             </div>
                         </div>
 
@@ -270,6 +272,36 @@
 
         // Tu función original toggleEstado se mantiene igual abajo...
 
+    </script>
+    <input type="checkbox" id="status-switch" {{ 'checked' if c.estado=='ON' else '' }}>
+
+    <script>
+        const switchElement = document.getElementById('status-switch');
+
+        switchElement.addEventListener('change', function () {
+            const nuevoEstado = this.checked ? 'ON' : 'OFF';
+
+            // Enviamos la petición al servidor
+            fetch('/actualizar_estado', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ status: nuevoEstado })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log('Estado actualizado a:', nuevoEstado);
+                        // Opcional: Actualiza visualmente el texto de "Estado actual"
+                        location.reload(); // O actualiza el texto con DOM para no recargar
+                    } else {
+                        alert('Error al actualizar: ' + data.message);
+                        this.checked = !this.checked; // Regresamos el switch a su posición original
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        });
     </script>
 </body>
 

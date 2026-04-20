@@ -5,6 +5,7 @@ from flask import Blueprint, render_template, session, redirect, url_for
 from utils import login_required
 from flask import Blueprint
 from database import obtener_conexion
+from flask import request, jsonify
 
 conductores_bp = Blueprint("conductores", __name__)
 
@@ -41,46 +42,32 @@ def panel():
                 db.close()
 
 
-@conductores_bp.route("/cambiar_estado/<int:id>", methods=["GET", "POST"])
-def cambiar_estado(id):
+@conductores_bp.route("/actualizar_estado>", methods=["POST"])
+def actualizar_estado():
+    # Obtenemos los datos que envía JavaScript
+    data = request.get_json()
+    nuevo_estado = data.get("status")  # 'ON' o 'OFF'
+    user_id = session.get("user_id")
     # SEGURIDAD: Solo el dueño del panel (o un admin) debería poder cambiar su estado
-    if "user_id" not in session or session.get("user_id") != id:
-        return jsonify({"error": "No autorizado"}), 403
-    db = None
-    nuevo_estado = None
+    if not user_id:
+        return jsonify({"success": false, "message": "No autorizado"}), 401
+    db = obtener_conexion()
     try:
-        db = obtener_conexion()
+
         with db.cursor() as cursor:
             # 1. Consultar estado actual
-            cursor.execute("SELECT estado FROM conductores WHERE id = %s", (id,))
-            conductor = cursor.fetchone()
-            if not conductor:
-                return jsonify({"error": "Conductor no encontrado"}), 404
-        # 2. Lógica de conmutación (Toggle)
-        estado_actual = str(conductor["estado"]).strip().lower()
-        nuevo_estado = (
-            "conectado" if estado_actual == "desconectado" else "desconectado"
-        )
-
-        print(f"DEBUG: Cambiando ID {id} de [{estado_actual}] a [{nuevo_estado}]")
-
-        # 3. Actualizar en la base de datos
-        cursor.execute(
-            "UPDATE conductores SET estado = %s WHERE id = %s", (nuevo_estado, id)
-        )
+            sql = "UPDATE conductores SET estado = %s WHERE id = %s"
+            cursor.execute(sql, (nuevo_estado, user_id))
+            return jsonify({"success": True, "message": "Estado actualizado"})
 
     except Exception as e:
-        print(f"❌ Error al cambiar estado: {e}")
-        if db:
-            db.rollback()  # Cancela si hay error
-        if request.method == "POST":
-            return jsonify({"error": str(e)}), 500
+        return jsonify({"success": False, "message": str(e)}), 500
     finally:
         if db:
             db.close()  # Asegura cerrar la conexión
 
-    if request.method == "POST":
-        return jsonify({"estado": nuevo_estado})
-    else:
-        # 4. Redirigir al panel (esto forzará a la página a leer el nuevo valor)
-        return redirect(url_for("panel_conductor", id=id))
+    # if request.method == "POST":
+    #     return jsonify({"estado": nuevo_estado})
+    # else:
+    #     # 4. Redirigir al panel (esto forzará a la página a leer el nuevo valor)
+    #     return redirect(url_for("panel_conductor", id=id))
