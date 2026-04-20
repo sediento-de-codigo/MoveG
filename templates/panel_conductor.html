@@ -7,152 +7,39 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
-
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register("/static/sw.js")
-                    .then(reg => console.log('MoveG PWA Registrada', reg))
-                    .catch(err => console.log('Fallo al registrar PWA', err));
-            });
-        }
-    </script>
-
-    <style>
-        body {
-            background-color: #f0f2f5;
-            font-family: 'Segoe UI', sans-serif;
-        }
-
-        .navbar {
-            background-color: #198754;
-            color: white;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .profile-card {
-            background: white;
-            border-radius: 15px;
-            border: none;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            overflow: hidden;
-        }
-
-        .profile-header {
-            background: #198754;
-            height: 100px;
-        }
-
-        .profile-img {
-            width: 130px;
-            height: 130px;
-            object-fit: cover;
-            border-radius: 50%;
-            border: 5px solid white;
-            margin-top: -65px;
-            background: #eee;
-        }
-
-        .badge-status {
-            font-size: 0.9rem;
-            padding: 8px 15px;
-            border-radius: 20px;
-        }
-
-        /* El contenedor del interruptor */
-        /* Contenedor del Switch */
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 160px !important;
-            height: 56px !important;
-            /* Un poco más alto */
-            margin-bottom: 0;
-        }
-
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        /* El fondo del botón */
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #777 !important;
-            /* Gris oscuro para que resalte */
-            transition: .4s;
-            border-radius: 50px !important;
-            border: 2px solid #555;
-        }
-
-        /* El círculo blanco que desliza */
-        .slider:before {
-            position: absolute;
-            content: "" !important;
-            height: 44px !important;
-            width: 44px !important;
-            left: 6px !important;
-            bottom: 4px !important;
-            background-color: white !important;
-            transition: .4s;
-            border-radius: 50% !important;
-            z-index: 10 !important;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-        }
-
-        /* Color cuando está CONECTADO (Verde brillante) */
-        input:checked+.slider {
-            background-color: #28a745 !important;
-            border-color: #1e7e34;
-        }
-
-        /* DESPLAZAMIENTO: El círculo viaja 104px a la derecha para llegar al final */
-        input:checked+.slider:before {
-            transform: translateX(104px) !important;
-        }
-
-        /* TEXTO DENTRO DEL BOTÓN */
-        .slider:after {
-            content: "OFF" !important;
-            color: white !important;
-            position: absolute !important;
-            top: 50% !important;
-            right: 20px !important;
-            transform: translateY(-50%) !important;
-            font-size: 14px !important;
-            font-weight: 800 !important;
-            font-family: 'Arial', sans-serif !important;
-            letter-spacing: 1px;
-        }
-
-        input:checked+.slider:after {
-            content: "CONECTADO" !important;
-            left: 15px !important;
-            right: auto !important;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
-
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register("/sw.js")
-                    .then(reg => console.log('MoveG PWA Registrada', reg))
-                    .catch(err => console.log('Fallo al registrar PWA', err));
-            });
-        }
-    </script>
+    <link rel="icon" href="{{ url_for('static', filename='js/main.js') }}" type="image/x-icon">
 </head>
 
 <body>
 
     <nav class="navbar mb-5">
+        <div class="d-flex align-items-center p-3">
+
+            <button class="btn p-0 border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#menuLateral"
+                aria-controls="menuLateral">
+                <span class="navbar-toggler-icon" style="filter: invert(1) brightness(10);"></span>
+            </button>
+        </div>
+        <div class="offcanvas offcanvas-start" tabindex="-1" id="menuLateral">
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title">MoveG | Panel</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+            </div>
+            <div class="offcanvas-body">
+                <ul class="nav nav-pills flex-column mb-auto">
+                    <li class="nav-item"><a href="/perfil" class="nav-link">👤 Perfil</a></li>
+                    <li class="nav-item"><a href="/estadisticas" class="nav-link">📊 Estadísticas</a></li>
+                    <li class="nav-item"><a href="/historial" class="nav-link">🕒 Historial de Viajes</a></li>
+                    <li class="nav-item"><a href="/billetera" class="nav-link">💰 Billetera / Pagos</a></li>
+                    <li class="nav-item"><a href="/configuracion" class="nav-link">⚙️ Configuración</a></li>
+                    <li class="nav-item"><a href="/soporte" class="nav-link">🎧 Soporte</a></li>
+                </ul>
+                <hr>
+                <a href="/logout" class="btn btn-danger w-100">Cerrar Sesión</a>
+            </div>
+        </div>
         <div class="container">
             <span class="navbar-brand mb-0 h1 text-white">MoveG | Panel de Socio</span>
         </div>
@@ -177,7 +64,7 @@
                             <div class="py-3">
                                 <label class="switch">
                                     <input type="checkbox" id="status-switch" {% if c.estado|trim|lower=='conectado' %}
-                                        checked {% endif %} onchange="toggleEstado({{ c.id }})">
+                                        checked {% endif %} ({{ c.id }})">
                                     <span class="slider"></span>
                                 </label>
                                 <p>Estado actual: <span class="badge">
@@ -202,10 +89,7 @@
                         </div>
                     </div>
 
-                    <div class="card-footer bg-white border-0 mt-3">
-                        <button class="btn btn-outline-success w-100 mb-2">Editar Perfil</button>
-                        <a href="{{ url_for('auth.logout') }}" class="btn btn-link text-muted">Cerrar Sesión</a>
-                    </div>
+
 
                 </div>
             </div>
@@ -221,88 +105,9 @@
             </div>
         </div>
     </div>
-    <script>
-        function cargarSolicitudes() {
-            fetch('/api/obtener_solicitudes')
-                .then(response => response.json())
-                .then(data => {
-                    const contenedor = document.getElementById('contenedor-solicitudes');
-                    if (data.length === 0) {
-                        contenedor.innerHTML = '<p class="text-muted">No hay solicitudes pendientes en este momento.</p>';
-                        return;
-                    }
-
-                    let html = '<div class="list-group">';
-                    data.forEach(s => {
-                        html += `
-        <div class="list-group-item list-group-item-action border-0 shadow-sm mb-2 rounded">
-            <div class="d-flex w-100 justify-content-between">
-                <h6 class="mb-1"><b>Pasajero:</b> ${s.pasajero}</h6>
-                <small class="text-success fw-bold">${s.precio_estimado} $</small>
-            </div>
-            <p class="mb-1 small">Destino: ${s.direccion_destino}</p>
-            <div class="d-flex justify-content-between align-items-center">
-                <span class="badge bg-info text-dark">${s.tipo_servicio}</span>
-                <button class="btn btn-primary btn-sm" onclick="aceptarViaje(${s.id})">Aceptar</button>
-            </div>
-        </div>`;
-                    });
-                    html += '</div > ';
-                    contenedor.innerHTML = html;
-                })
-                .catch(err => console.error('Error al cargar solicitudes:', err));
-        }
-
-        function aceptarViaje(id) {
-            if (confirm('¿Deseas aceptar este viaje?')) {
-                fetch('/aceptar_viaje/' + id, { method: 'POST' })
-                    .then(res => res.json())
-                    .then(data => {
-                        alert(data.mensaje);
-                        cargarSolicitudes(); // Recargar lista
-                    });
-            }
-        }
-
-        // Cargar al iniciar y luego cada 10 segundos
-        document.addEventListener('DOMContentLoaded', () => {
-            cargarSolicitudes();
-            setInterval(cargarSolicitudes, 10000);
-        });
-
-        // Tu función original toggleEstado se mantiene igual abajo...
-
-    </script>
-    <input type="checkbox" id="status-switch" {{ 'checked' if c.estado=='ON' else '' }}>
-
-    <script>
-        const switchElement = document.getElementById('status-switch');
-
-        switchElement.addEventListener('change', function () {
-            const nuevoEstado = this.checked ? 'ON' : 'OFF';
-
-            // Enviamos la petición al servidor
-            fetch('/actualizar_estado', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ status: nuevoEstado })
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        console.log('Estado actualizado a:', nuevoEstado);
-                        // Opcional: Actualiza visualmente el texto de "Estado actual"
-                        location.reload(); // O actualiza el texto con DOM para no recargar
-                    } else {
-                        alert('Error al actualizar: ' + data.message);
-                        this.checked = !this.checked; // Regresamos el switch a su posición original
-                    }
-                })
-                .catch(error => console.error('Error:', error));
-        });
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
 </body>
 
 </html>

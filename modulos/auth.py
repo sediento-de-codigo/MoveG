@@ -36,7 +36,7 @@ def registro_pasajero():
                 db.commit()
                 session["user_id"] = cursor.lastrowid
                 session["rol"] = "pasajero"
-            return redirect(url_for("viajes.panel_pasajero"))
+            return redirect(url_for("viajes.panel_conductor"))
         finally:
             if db:
                 db.close()

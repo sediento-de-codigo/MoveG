@@ -42,7 +42,7 @@ def panel():
                 db.close()
 
 
-@conductores_bp.route("/actualizar_estado>", methods=["POST"])
+@conductores_bp.route("/actualizar_estado", methods=["POST"])
 def actualizar_estado():
     # Obtenemos los datos que envía JavaScript
     data = request.get_json()
@@ -50,7 +50,7 @@ def actualizar_estado():
     user_id = session.get("user_id")
     # SEGURIDAD: Solo el dueño del panel (o un admin) debería poder cambiar su estado
     if not user_id:
-        return jsonify({"success": false, "message": "No autorizado"}), 401
+        return jsonify({"success": False, "message": "No autorizado"}), 401
     db = obtener_conexion()
     try:
 
@@ -61,13 +61,11 @@ def actualizar_estado():
             return jsonify({"success": True, "message": "Estado actualizado"})
 
     except Exception as e:
-        return jsonify({"success": False, "message": str(e)}), 500
+        return (
+            jsonify(
+                {"success": False, "message": "estado cambiado a:" + str(nuevo_estado)}
+            ),
+        )
     finally:
         if db:
             db.close()  # Asegura cerrar la conexión
-
-    # if request.method == "POST":
-    #     return jsonify({"estado": nuevo_estado})
-    # else:
-    #     # 4. Redirigir al panel (esto forzará a la página a leer el nuevo valor)
-    #     return redirect(url_for("panel_conductor", id=id))

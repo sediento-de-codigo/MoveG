@@ -11,7 +11,8 @@ def panel():
     if "user_id" in session and session.get("user_rol") == "pasajero":
         # return f"<h1>Bienvenido al Panel de Pasajeros, {session['user_name']}</h1><a href='/logout'>Cerrar Sesión</a>"
 
-        return render_template("panel_pasajero.html", nombre=session.get("user_name"))
+        return render_template(
+            "viajes.panel_conductor.html", nombre=session.get("user_name")
+        )
 
     return redirect(url_for("auth.login"))
-    return render_template("panel_pasajero.html")

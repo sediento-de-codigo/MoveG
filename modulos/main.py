@@ -14,6 +14,6 @@ def index():
         if tipo == "conductor":
             return redirect(url_for("conductores.panel"))
         else:
-            return redirect(url_for("viajes.panel_pasajero"))  # O la ruta de pasajeros
+            return redirect(url_for("viajes.panel_conductor"))  # O la ruta de pasajeros
 
     return render_template("index.html")
