@@ -14,13 +14,15 @@ document.addEventListener('DOMContentLoaded', () => {
     function actualizarInterfaz() {
         if (!switchElement) return;
         
-        if (switchElement.checked) {
+       /* if (switchElement.checked) {
             infoConductor?.classList.remove('d-none');
             seccionSolicitudes?.classList.remove('d-none');
         } else {
             infoConductor?.classList.add('d-none');
             seccionSolicitudes?.classList.add('d-none');
-        }
+        }*/
+       // FUERZA LA VISIBILIDAD SIEMPRE
+    seccionSolicitudes?.classList.remove('d-none');
     }
 
     if (switchElement) {
@@ -35,9 +37,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ status: nuevoEstado })
                 });
+                // AGREGA ESTO DEBAJO PARA VER LA RESPUESTA:
+                  const data = await response.json(); // Intentamos leer la respuesta como JSON
+                  console.log("Respuesta del servidor:", data);
 
-                if (!response.ok) throw new Error("Fallo en servidor");
+                if (data.success) {    
                 console.log('Estado guardado');
+                actualizarInterfaz();
+            } else{
+                throw new Error("El servidor no pudo actualizar");}
             } catch (error) {
                 console.error('Error:', error);
                 this.checked = !this.checked; 
