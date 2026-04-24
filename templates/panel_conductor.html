@@ -58,7 +58,8 @@
                         <h2 class="fw-bold">{{ c.nombre_completo }}</h2>
                         <p class="text-muted"><i class="bi bi-car-front"></i> Placa: <span class="badge bg-dark">{{
                                 c.placa_vehiculo }}</span></p>
-
+                        <small class="text-muted d-block">Teléfono</small>
+                        <strong>{{ c.telefono }}</strong>
                         <div class="text-center my-4">
                             <p class="mb-1"><strong>Estatus del Conductor</strong></p>
                             <div class="py-3">
@@ -67,19 +68,11 @@
                                         checked {% endif %} ({{ c.id }})">
                                     <span class="slider"></span>
                                 </label>
-                                <p>Estado actual: <span class="badge">
-                                        {{ c.estado if c.estado != '' else 'Desconectado' }}
-                                    </span></p>
+
                             </div>
                         </div>
 
-                        <div class="row text-start mt-5 px-4">
-                            <div class="col-6 mb-3">
-                                <small class="text-muted d-block">Teléfono</small>
-                                <strong>{{ c.telefono }}</strong>
-                            </div>
 
-                        </div>
 
 
 
@@ -91,29 +84,44 @@
                     <div class="col-md-8 col-lg-6">
                         <div class="profile-card p-3">
 
-                            <p class="text-muted">Buscando solicitudes cercanas...</p>
-                            <div id="seccion-solicitudes" class="mt-4 p-3">
-                                <h4><i class="bi bi-bell"></i> Solicitudes Recientes</h4>
+                            <div class="container mt-4">
 
 
+                                <div id="seccion-solicitudes" class="d-none">
+                                    <h4 class="mb-3 text-secondary">Solicitudes de Viaje</h4>
 
-                                {% if solicitudes %}
-                                {% for solicitud in solicitudes %}
-                                <div class="card mb-3 shadow-sm border-0">
-                                    <div class="card-body">
-                                        <h5 class="card-title">{{ solicitud['nombre'] }}</h5>
-                                        <p class="card-text">
-                                            <strong>Destino:</strong> {{ solicitud.direccion_destino }}<br>
-                                            <strong>Tarifa:</strong> ${{ solicitud.precio_estimado }} <br>
-                                            <strong>Asientos:</strong> {{ solicitud.cantidad_asientos }}
-                                        </p>
-                                        <button class="btn btn-success w-100">Aceptar Viaje</button>
+                                    {% for s in solicitudes %}
+                                    <div class="card mb-3 shadow-sm border-0">
+                                        <div class="card-body">
+                                            <h5 class="card-title text-primary mb-3">
+                                                <i class="bi bi-geo-alt-fill"></i> {{ s.direccion_destino }}
+                                            </h5>
+
+                                            <div class="row text-center mb-3">
+                                                <div class="col-6">
+                                                    <small class="text-muted d-block">Tarifa</small>
+                                                    <span class="fs-5 fw-bold text-success">${{ [s.precio_estimado]
+                                                        | float | round(2)
+                                                        }}</span>
+                                                </div>
+                                                <div class="col-6">
+                                                    <small class="text-muted d-block">Pasajeros</small>
+                                                    <span class="fs-5 fw-bold">{{ s.cantidad_asientos }}</span>
+                                                </div>
+                                            </div>
+
+                                            <form action="/aceptar_viaje" method="POST">
+                                                <input type="hidden" name="viaje_id" value="{{ s.id }}">
+                                                <button type="submit" class="btn btn-success w-100 rounded-pill">Aceptar
+                                                    Viaje</button>
+                                            </form>
+                                        </div>
                                     </div>
+                                    {% else %}
+                                    <div class="alert alert-light border shadow-sm">No hay solicitudes pendientes en
+                                        este momento.</div>
+                                    {% endfor %}
                                 </div>
-                                {% endfor %}
-                                {% else %}
-                                <p class="text-center text-muted">No hay solicitudes en este momento.</p>
-                                {% endif %}
                             </div>
                         </div>
                     </div>

@@ -5,7 +5,10 @@ body {
     margin: 0;
     padding: 0;
 }
-
+/* Esto obliga al navegador a respetar la clase d-none por encima de todo */
+.d-none {
+    display: none !important;
+}
 .navbar { background-color: #198754; color: white; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
 .profile-card { background: white; border-radius: 15px; border: none; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); overflow: hidden; }
 .profile-header { background: #198754; height: 100px; }

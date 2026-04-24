@@ -21,8 +21,12 @@ from modulos.sistema import sistema_bp
 from modulos.viajes import viajes_bp  # Importación
 from utils import login_required
 from modulos.main import main_bp
+from models import db
+from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
+app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root:" "@localhost/movilgroup"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.register_blueprint(auth_bp)
 app.register_blueprint(conductores_bp)
 app.register_blueprint(pasajeros_bp)
@@ -30,6 +34,10 @@ app.register_blueprint(sistema_bp)
 app.register_blueprint(viajes_bp)
 app.register_blueprint(main_bp)
 from werkzeug.utils import secure_filename
+
+# Aquí conectas 'db' con tu 'app'
+db.init_app(app)
+
 
 with app.app_context():
     print("\n--- MAPA DE RUTAS ACTUAL ---")

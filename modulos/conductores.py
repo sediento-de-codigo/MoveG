@@ -6,6 +6,7 @@ from utils import login_required
 from flask import Blueprint
 from database import obtener_conexion
 from flask import request, jsonify
+from models import Conductor
 
 conductores_bp = Blueprint("conductores", __name__)
 
@@ -64,24 +65,13 @@ def actualizar_estado():
     # SEGURIDAD: Solo el dueño del panel (o un admin) debería poder cambiar su estado
     if not user_id:
         return jsonify({"success": False, "message": "No autorizado"}), 401
-    db = obtener_conexion()
-    try:
 
-        with db.cursor() as cursor:
-            # 1. Consultar estado actual
-            sql = "UPDATE conductores SET estado = %s WHERE id = %s"
-            cursor.execute(sql, (nuevo_estado, user_id))
-            return jsonify({"success": True, "message": "Estado actualizado"})
+    exito = Conductor.actualizar_estado_bd(user_id, nuevo_estado)
 
-    except Exception as e:
-        return (
-            jsonify(
-                {"success": False, "message": "estado cambiado a:" + str(nuevo_estado)}
-            ),
-        )
-    finally:
-        if db:
-            db.close()  # Asegura cerrar la conexión
+    if exito:
+        return jsonify({"success": True, "message": "Estado actualizado"})
+    else:
+        return jsonify({"success": False, "message": "Error al actualizar en BD"}), 500
 
 
 @conductores_bp.route("/panel_conductor")

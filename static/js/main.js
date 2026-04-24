@@ -1,3 +1,4 @@
+console.log("¡HOLA! main.js se está ejecutando correctamente");
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Registro Service Worker (en la raíz)
     if ('serviceWorker' in navigator) {
@@ -12,17 +13,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const seccionSolicitudes = document.getElementById('seccion-solicitudes');
 
     function actualizarInterfaz() {
-        if (!switchElement) return;
         
-       /* if (switchElement.checked) {
+        
+        if (switchElement.checked) {
             infoConductor?.classList.remove('d-none');
             seccionSolicitudes?.classList.remove('d-none');
         } else {
             infoConductor?.classList.add('d-none');
             seccionSolicitudes?.classList.add('d-none');
-        }*/
+        }
        // FUERZA LA VISIBILIDAD SIEMPRE
-    seccionSolicitudes?.classList.remove('d-none');
+    //seccionSolicitudes?.classList.remove('d-none');
     }
 
     if (switchElement) {
@@ -56,3 +57,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     actualizarInterfaz(); 
 }); // <--- ESTA LLAVE CIERRA EL DOMContentLoaded. ¡NO LA BORRES!
+document.addEventListener("DOMContentLoaded", function() {
+    const switchElement = document.getElementById('btnSwitch');
+    const seccion = document.getElementById('seccion-solicitudes');
+
+    if (switchElement && seccion) {
+        switchElement.addEventListener('change', function() {
+            if (this.checked) {
+                seccion.classList.remove('d-none');
+                console.log("Activado: Mostrando solicitudes");
+            } else {
+                seccion.classList.add('d-none');
+                console.log("Desactivado: Ocultando solicitudes");
+            }
+        });
+    } else {
+        console.error("Error: No se encontró el ID del botón o de la sección");
+    }
+});
+
+function ver_solicitudes() {
+    console.log("Sistema: Mostrando solicitudes activas...");
+    // Si en el futuro necesitas refrescar datos vía AJAX, aquí iría el fetch
+}
